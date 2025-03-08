@@ -1,0 +1,92 @@
+# Default configuration for Stateful Gaussian Splatting
+
+# Data settings
+data:
+  root_dir: "data/FramesByNumber"  # Path to the FramesByNumber directory
+  train_frames: [1, 250]  # Range of frames to use for training
+  val_frames: [251, 300]  # Range of frames to use for validation
+  image_size: [512, 512]  # Width, height to resize images to
+  cameras: ["CameraL_000", "CameraL_001", "CameraL_002", "CameraL_003", "CameraL_004", 
+           "CameraL_005", "CameraL_006", "CameraL_007", "CameraL_008", "CameraL_009", "CameraL_010",
+           "CameraR_000", "CameraR_001", "CameraR_002", "CameraR_003", "CameraR_004", 
+           "CameraR_005", "CameraR_006", "CameraR_007", "CameraR_008", "CameraR_009", "CameraR_010"]
+  modalities: ["rgb", "depth", "alpha"]  # Image modalities to use
+
+# Model settings
+model:
+  # Gaussian Splatting parameters
+  gaussian:
+    num_gaussians: 100000
+    initial_radius: 0.1
+    opacity_init: 0.1
+    sh_degree: 3
+    position_lr: 0.00016
+    feature_lr: 0.0025
+    opacity_lr: 0.05
+    scaling_lr: 0.005
+    rotation_lr: 0.001
+    
+  # Liquid Neural Network parameters
+  liquid_network:
+    enabled: true
+    hidden_size: 256
+    num_layers: 4
+    activation: "swish"  # Options: relu, tanh, swish, gelu
+    dropout: 0.1
+    time_embedding_dim: 128
+    use_attention: true
+    attention_heads: 4
+    
+  # Camera parameters
+  camera:
+    fov: 60.0  # Field of view in degrees
+    near: 0.1  # Near clipping plane
+    far: 100.0  # Far clipping plane
+    
+# Training settings
+training:
+  batch_size: 4
+  num_epochs: 300
+  learning_rate: 0.0001
+  weight_decay: 0.0001
+  scheduler: "cosine"  # Options: cosine, step, plateau
+  warmup_epochs: 5
+  save_interval: 10  # Save checkpoint every N epochs
+  eval_interval: 5  # Evaluate on validation set every N epochs
+  early_stopping_patience: 20
+  mixed_precision: true
+  gradient_clip: 1.0
+  
+# Loss function weights
+loss:
+  rgb_loss_weight: 1.0
+  depth_loss_weight: 0.1
+  alpha_loss_weight: 0.05
+  temporal_consistency_weight: 0.5
+  regularization_weight: 0.001
+  
+# Optimization settings
+optimization:
+  densification_interval: 100  # Densify gaussians every N iterations
+  pruning_interval: 100  # Prune gaussians every N iterations
+  opacity_threshold: 0.005  # Prune gaussians with opacity below this threshold
+  
+# Rendering settings
+rendering:
+  resolution: [1024, 1024]  # Width, height of rendered images
+  num_frames: 60  # Number of frames to render for video
+  fps: 30  # Frames per second for video
+  background_color: [0, 0, 0]  # RGB background color
+  
+# Logging settings
+logging:
+  use_wandb: false  # Whether to use Weights & Biases for logging
+  wandb_project: "stateful-gaussian-splatting"  # W&B project name
+  log_interval: 10  # Log metrics every N iterations
+  
+# System settings
+system:
+  seed: 42  # Random seed for reproducibility
+  num_workers: 4  # Number of data loading workers
+  device: "cuda"  # Device to use: cuda, cpu
+  precision: "float32"  # Precision to use: float32, float16, bfloat16
